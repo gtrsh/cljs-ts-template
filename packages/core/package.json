@@ -21,7 +21,8 @@
     "clean":      "rm -rf dist .shadow-cljs .cpcache out"
   },
   "dependencies": {
-    "idb-keyval": "^6.2.2"
+    "idb-keyval": "^6.2.2",
+    "nanoid": "^5.1.9"
   },
   "devDependencies": {
     "shadow-cljs": "^3.3.6"
