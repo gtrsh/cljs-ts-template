@@ -13,11 +13,13 @@
   },
   "files": ["dist", "types"],
   "scripts": {
-    "watch":   "shadow-cljs watch core",
-    "compile": "shadow-cljs compile core",
-    "build":   "shadow-cljs release core",
-    "repl":    "shadow-cljs cljs-repl core",
-    "clean":   "rm -rf dist .shadow-cljs .cpcache"
+    "watch":      "shadow-cljs watch core",
+    "compile":    "shadow-cljs compile core",
+    "build":      "shadow-cljs release core",
+    "repl":       "shadow-cljs cljs-repl core",
+    "test":       "shadow-cljs compile test",
+    "test:watch": "shadow-cljs watch test",
+    "clean":      "rm -rf dist .shadow-cljs .cpcache out"
   },
   "dependencies": {
     "idb-keyval": "^6.2.2"

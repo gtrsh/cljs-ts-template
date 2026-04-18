@@ -1,4 +1,4 @@
-{:source-paths ["src"]
+{:source-paths ["src" "test"]
  :dependencies [[funcool/promesa "11.0.678"]]
 
  :builds
@@ -9,4 +9,10 @@
    :modules    {:index {:exports {createApp          app.entry/create-app
                                    createAppWithDeps  app.entry/create-app-with-deps}}}
    :compiler-options {:output-feature-set :es2020
-                      :infer-externs :auto}}}}
+                      :infer-externs :auto}}
+
+  :test
+  {:target    :node-test
+   :output-to "out/node-tests.js"
+   :ns-regexp "-test$"
+   :autorun   true}}}
