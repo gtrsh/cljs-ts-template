@@ -1,6 +1,7 @@
 (ns app.board
   "Чистые функции над моделью kanban-доски. Pure, side-effect-free.
-   Возвращают либо новый board (happy path), либо {:error kw :details...}.")
+   Возвращают либо новый board (happy path), либо {:error kw :details...}."
+  (:require [clojure.string :as str]))
 
 ;; --- вспомогательные функции над вектором id'ов ---
 
@@ -94,11 +95,11 @@
     {:error :card-not-found :card-id card-id}
 
     (or (not (string? new-title))
-        (-> new-title clojure.string/trim empty?))
+        (-> new-title str/trim empty?))
     {:error :invalid-title}
 
     :else
-    (assoc-in board [:cards card-id :title] (clojure.string/trim new-title))))
+    (assoc-in board [:cards card-id :title] (str/trim new-title))))
 
 ;; --- операции над колонками ---
 

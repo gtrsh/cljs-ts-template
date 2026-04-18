@@ -1,25 +1,37 @@
 (ns app.entry
-  (:require [app.domain :as domain]))
+  (:require [app.domain :as domain]
+            [app.adapters.clock :as clock]
+            [app.adapters.idb   :as idb]
+            [app.adapters.ws    :as ws]))
 
-(defn- board->api
-  "Превращает CLJS-состояние в JS-объект методов для TS-стороны.
-   На шагах 4-5 здесь появятся setState/subscribe/moveCard/..., пока только getState."
-  [board-atom]
+(defn- board->api [board-atom]
   #js {:getState (fn [] (clj->js @board-atom))})
 
 (defn ^:export create-app
-  "Боевая сборка: реальные адаптеры, стартовое состояние из demo-board.
-   Позже будет принимать опции (url сокета, имя IDB-store и т.д.)."
   ([] (create-app #js {}))
-  ([_opts]
-   (let [board-atom (atom (domain/demo-board))]
-     #js {:board (board->api board-atom)
+  ([js-opts]
+   (let [{:keys [db-name store-name]
+          :or   {db-name "kanban" store-name "v1"}}
+         (js->clj js-opts :keywordize-keys true)
+
+         deps {:clock  (clock/make)
+               :kv     (idb/make {:db-name db-name :store-name store-name})
+               :socket (ws/make)}
+
+         board-atom (atom (domain/demo-board))]
+
+     ;; на шаге 4 deps попадут в сервисный слой; пока они просто собраны
+     ;; для ранней проверки, что вся цепочка компилируется.
+     (js/console.log "[core] deps ready:" (clj->js (keys deps)))
+
+     #js {:board    (board->api board-atom)
           :shutdown (fn [] nil)})))
 
 (defn ^:export create-app-with-deps
-  "Сборка с инжектом зависимостей — для тестов, Storybook, демо-страниц.
-   Подробности на шаге 5."
-  [^js _js-deps]
-  (let [board-atom (atom domain/empty-board)]
-    #js {:board (board->api board-atom)
+  "Принимает JS-объект с готовыми реализациями портов — для тестов/Storybook."
+  [^js js-deps]
+  (let [deps       (js->clj js-deps :keywordize-keys true)
+        board-atom (atom domain/empty-board)]
+    (js/console.log "[core] createAppWithDeps called with:" (clj->js (keys deps)))
+    #js {:board    (board->api board-atom)
          :shutdown (fn [] nil)}))

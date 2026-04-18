@@ -3,11 +3,12 @@
 
  :builds
  {:core
-  {:target     :esm
-   :output-dir "dist"
-   :runtime    :browser
-   :modules    {:index {:exports {createApp          app.entry/create-app
-                                   createAppWithDeps  app.entry/create-app-with-deps}}}
+  {:target      :esm
+   :output-dir  "dist"
+   :runtime     :browser
+   :modules     {:index {:exports {createApp          app.entry/create-app
+                                    createAppWithDeps  app.entry/create-app-with-deps}}}
+   :build-hooks [(hooks/write-dist-package-json)]
    :compiler-options {:output-feature-set :es2020
                       :infer-externs :auto}}
 
