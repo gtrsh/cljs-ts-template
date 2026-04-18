@@ -1,0 +1,25 @@
+{
+  "name": "@myapp/core",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./types/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["dist", "types"],
+  "scripts": {
+    "watch":   "shadow-cljs watch core",
+    "compile": "shadow-cljs compile core",
+    "build":   "shadow-cljs release core",
+    "repl":    "shadow-cljs cljs-repl core",
+    "clean":   "rm -rf dist .shadow-cljs .cpcache"
+  },
+  "devDependencies": {
+    "shadow-cljs": "^3.3.6"
+  }
+}

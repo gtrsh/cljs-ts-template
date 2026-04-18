@@ -1,0 +1,12 @@
+{:source-paths ["src"]
+ :dependencies []
+
+ :builds
+ {:core
+  {:target     :esm
+   :output-dir "dist"
+   :runtime    :browser
+   :modules    {:index {:exports {sayHello     app.hello/say-hello
+                                   computeStats app.hello/compute-stats}}}
+   :compiler-options {:output-feature-set :es2020
+                      :infer-externs :auto}}}}

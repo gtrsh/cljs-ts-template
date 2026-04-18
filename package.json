@@ -1,0 +1,11 @@
+{
+  "name": "myapp",
+  "private": true,
+  "packageManager": "pnpm@10.33.0",
+  "scripts": {
+    "dev:core": "pnpm --filter @myapp/core watch",
+    "dev:app":  "pnpm --filter @myapp/app dev",
+    "build":    "pnpm --filter @myapp/core build && pnpm --filter @myapp/app build",
+    "clean":    "pnpm -r run clean && rm -rf node_modules"
+  }
+}
