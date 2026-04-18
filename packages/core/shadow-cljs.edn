@@ -1,12 +1,12 @@
 {:source-paths ["src"]
- :dependencies []
+ :dependencies [[funcool/promesa "11.0.678"]]
 
  :builds
  {:core
   {:target     :esm
    :output-dir "dist"
    :runtime    :browser
-   :modules    {:index {:exports {sayHello     app.hello/say-hello
-                                   computeStats app.hello/compute-stats}}}
+   :modules    {:index {:exports {createApp          app.entry/create-app
+                                   createAppWithDeps  app.entry/create-app-with-deps}}}
    :compiler-options {:output-feature-set :es2020
                       :infer-externs :auto}}}}

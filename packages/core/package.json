@@ -19,6 +19,9 @@
     "repl":    "shadow-cljs cljs-repl core",
     "clean":   "rm -rf dist .shadow-cljs .cpcache"
   },
+  "dependencies": {
+    "idb-keyval": "^6.2.2"
+  },
   "devDependencies": {
     "shadow-cljs": "^3.3.6"
   }

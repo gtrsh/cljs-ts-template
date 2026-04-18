@@ -1,37 +1,30 @@
-import { useMemo, useState } from "react";
-import { sayHello, computeStats, type Stats } from "@myapp/core";
+import { useMemo } from "react";
+import { createApp, type Board } from "@myapp/core";
 
 export function App() {
-  const [name, setName] = useState("Jhon Dorn");
-  const [input, setInput] = useState("1, 2, 3, 4, 5, 10, 42");
-
-  const stats: Stats = useMemo(() => {
-    const nums = input
-      .split(",")
-      .map(s => Number(s.trim()))
-      .filter(n => Number.isFinite(n));
-    return computeStats(nums);
-  }, [input]);
+  // Создаём приложение один раз на время жизни компонента.
+  // На шаге 6 переедет в contexts + subscribe, пока это просто демо.
+  const app = useMemo(() => createApp(), []);
+  const board: Board = app.board.getState();
 
   return (
-    <main style={{ fontFamily: "system-ui", padding: 24, maxWidth: 640 }}>
-      <h1>CLJS core × React shell</h1>
+    <main style={{ fontFamily: "system-ui", padding: 24 }}>
+      <h1>Kanban</h1>
+      <p style={{ color: "#666", fontSize: 14 }}>
+        Ядро инициализировано, состояние получено. DnD появится на шаге 6.
+      </p>
 
-      <section style={{ marginBottom: 24 }}>
-        <h2>sayHello</h2>
-        <input value={name} onChange={e => setName(e.target.value)} />
-        <p>{sayHello(name)}</p>
-      </section>
-
-      <section>
-        <h2>computeStats</h2>
-        <input
-          style={{ width: "100%" }}
-          value={input}
-          onChange={e => setInput(e.target.value)}
-        />
-        <pre>{JSON.stringify(stats, null, 2)}</pre>
-      </section>
+      <pre
+        style={{
+          background: "#f5f5f5",
+          padding: 16,
+          borderRadius: 8,
+          fontSize: 12,
+          overflow: "auto",
+        }}
+      >
+        {JSON.stringify(board, null, 2)}
+      </pre>
     </main>
   );
 }
