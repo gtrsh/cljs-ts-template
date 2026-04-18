@@ -67,46 +67,47 @@
 (defn create-service
   "deps: {:kv ... :socket ... :clock ... :log ... :id-gen ... :socket-url ...}
    Возвращает map с ключами:
-   :get-state    () → board
-   :dispatch     (command) → nil | {:error ...}
-   :subscribe    (listener) → unsubscribe-fn
-   :shutdown     () → nil"
+   :get-state, :dispatch, :subscribe, :ready, :shutdown
+   :ready — Promise, резолвится когда init-board и (опционально) ws-connect завершились."
   [{:keys [kv socket clock log id-gen socket-url] :as deps}]
-  (let [state-atom (atom nil)
+  (let [state-atom       (atom nil)
         socket-conn-atom (atom nil)
-        listeners-atom (atom #{})]
+        listeners-atom   (atom #{})
 
-    ;; --- подписка на изменения atom'а транслирует в listeners ---
-    (add-watch state-atom ::broadcast
-               (fn [_ _ _ new-state]
-                 (doseq [l @listeners-atom]
-                   (try
-                     (l new-state)
-                     (catch :default e
-                       (p/-log log :error "listener threw" {:err (ex-message e)}))))))
+        _ (add-watch state-atom ::broadcast
+                     (fn [_ _ _ new-state]
+                       (doseq [l @listeners-atom]
+                         (try
+                           (l new-state)
+                           (catch :default e
+                             (p/-log log :error "listener threw" {:err (ex-message e)}))))))
 
-    ;; --- async-инициализация: hydrate + WS-коннект ---
-    (-> (init-board deps)
-        (pr/then
-          (fn [board]
-            (reset! state-atom board)
-            (p/-log log :info "service ready" {})))
-        (pr/catch
-          (fn [err]
-            (p/-log log :error "init failed" {:error (ex-message err)})
-            (reset! state-atom (domain/demo-board)))))
+        init-promise
+        (-> (init-board deps)
+            (pr/then (fn [board]
+                       (reset! state-atom board)
+                       (p/-log log :info "service ready" {})))
+            (pr/catch (fn [err]
+                        (p/-log log :error "init failed" {:error (ex-message err)})
+                        (reset! state-atom (domain/demo-board)))))
 
-    (when socket-url
-      (-> (p/-connect socket socket-url
-                      {:on-message (fn [msg]
-                                     (p/-log log :debug "ws message" msg))
-                       :on-close   (fn [info]
-                                     (p/-log log :warn "ws closed" info))
-                       :on-error   (fn [_]
-                                     (p/-log log :error "ws error" {}))})
-          (pr/then (fn [conn] (reset! socket-conn-atom conn)))
-          (pr/catch (fn [err]
-                      (p/-log log :warn "ws connect failed" {:error (ex-message err)})))))
+        socket-promise
+        (if socket-url
+          (-> (p/-connect socket socket-url
+                          {:on-message (fn [msg]
+                                         (p/-log log :debug "ws message" msg))
+                           :on-close   (fn [info]
+                                         (p/-log log :warn "ws closed" info))
+                           :on-error   (fn [_]
+                                         (p/-log log :error "ws error" {}))})
+              (pr/then (fn [conn]
+                         (reset! socket-conn-atom conn)))
+              (pr/catch (fn [err]
+                          (p/-log log :warn "ws connect failed"
+                                  {:error (ex-message err)}))))
+          (pr/resolved nil))
+
+        ready-promise (pr/all [init-promise socket-promise])]
 
     {:get-state
      (fn [] @state-atom)
@@ -142,8 +143,9 @@
      :subscribe
      (fn [listener]
        (swap! listeners-atom conj listener)
-       ;; возвращаем unsubscribe:
        (fn [] (swap! listeners-atom disj listener)))
+
+     :ready ready-promise
 
      :shutdown
      (fn []
