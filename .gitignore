@@ -3,4 +3,5 @@ node_modules/
 .cpcache/
 dist/
 *.log
+*.tsbuildinfo
 .DS_Store

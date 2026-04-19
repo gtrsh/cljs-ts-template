@@ -5,15 +5,16 @@
   "type": "module",
   "scripts": {
     "dev":       "vite",
-    "build":     "tsc -b && vite build",
+    "build":     "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.node.json && vite build",
     "preview":   "vite preview",
-    "typecheck": "tsc -b",
-    "clean":     "rm -rf dist node_modules/.vite"
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.node.json",
+    "clean":     "rm -rf dist node_modules/.vite *.tsbuildinfo"
   },
   "dependencies": {
     "@myapp/core": "workspace:*",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
     "react": "^19.2.5",
     "react-dom": "^19.2.5"
   },
